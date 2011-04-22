@@ -40,17 +40,17 @@ class BaseAlert(object):
     
     
     def __init__(self):
-    	kwargs = {}
-    	if self.sender:
-    		kwargs['sender'] = self.sender
+        kwargs = {}
+        if self.sender:
+            kwargs['sender'] = self.sender
         
         self.signal.connect(self.signal_handler, **kwargs)
     
     
     def signal_handler(self, **kwargs):
     
-		if self.before(**kwargs) is False: 
-			return
+        if self.before(**kwargs) is False: 
+            return
 
         from alert.models import AlertPreference
         from alert.models import Alert
@@ -71,7 +71,7 @@ class BaseAlert(object):
     
     
     def before(self, **kwargs):
-    	pass
+        pass
     
     
     def get_applicable_users(self, instance, **kwargs):
