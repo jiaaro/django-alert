@@ -53,7 +53,7 @@ class BaseAlert(object):
 			return
 
         from alert.models import AlertPreference
-        from alert.models import Alert as AlertModel
+        from alert.models import Alert
         
         users = self.get_applicable_users(**kwargs)
         site = Site.objects.get_current()
@@ -61,12 +61,13 @@ class BaseAlert(object):
         for user, backend in AlertPreference.objects.get_recipients_for_notice(self.id, users):
             context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, **kwargs)
             template_kwargs = {'backend': backend, 'context': context } 
-            AlertModel.objects.create(
-                                            user=user, 
-                                            method=backend.id,
-                                            title=self.get_title(**template_kwargs),
-                                            body=self.get_body(**template_kwargs)
-                                            )
+            Alert.objects.create(
+                                 user=user, 
+                                 method=backend.id,
+                                 alert_type=self.id,
+                                 title=self.get_title(**template_kwargs),
+                                 body=self.get_body(**template_kwargs)
+                                 )
     
     
     def before(self, **kwargs):

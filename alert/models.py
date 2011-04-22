@@ -4,18 +4,16 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db import models
 
-
-from alert.utils import ALERT_TYPE_CHOICES,\
-    ALERT_BACKEND_CHOICES, ALERT_BACKENDS
-from alert.managers import AlertManager, PendingAlertManager,\
-    AlertPrefsManager
+from alert.utils import ALERT_TYPE_CHOICES, ALERT_BACKEND_CHOICES, ALERT_TYPES, ALERT_BACKENDS
+from alert.managers import AlertManager, PendingAlertManager, AlertPrefsManager
 from alert.exceptions import CouldNotSendError
-
+from alert.signals import alert_sent
 
 
 class Alert(models.Model):
     user = models.ForeignKey(User)
     method = models.CharField(max_length=20, default='email', choices=ALERT_BACKEND_CHOICES)
+    alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     
     title = models.CharField(max_length=250, default=lambda: "%s alert" % Site.objects.get_current().name)
     body = models.TextField()
@@ -35,16 +33,19 @@ class Alert(models.Model):
         backend = Alert._get_backend(self.method)
         try:
             backend.notify(self)
-            self.is_sent = True    
+            self.is_sent = True
+			alert_sent.send(sender=ALERT_TYPES[self.alert_type], alert=self)
         except CouldNotSendError:
             self.failed = True
         
         self.last_attempt = datetime.now()
         self.save()
         
+        
     @classmethod
     def _get_backend(cls, method):
         return ALERT_BACKENDS[method]
+
 
 
 class AlertPreference(models.Model):
