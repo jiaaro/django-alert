@@ -144,7 +144,15 @@ class AlertBackendMeta(type):
         return new_alert_backend
 
 
+
 class BaseAlertBackend(object):
     __metaclass__ = AlertBackendMeta
+    
+    
+    def mass_send(self, alerts):
+        try:
+            [self.send(alert) for alert in alerts]
+        except TypeError:
+            self.send(alerts)
     
     

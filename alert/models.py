@@ -32,7 +32,7 @@ class Alert(models.Model):
     def send(self):
         backend = Alert._get_backend(self.backend)
         try:
-            backend.notify(self)
+            backend.send(self)
             self.is_sent = True
             alert_sent.send(sender=ALERT_TYPES[self.alert_type], alert=self)
             
