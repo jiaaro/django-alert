@@ -12,7 +12,7 @@ from alert.signals import alert_sent
 
 class Alert(models.Model):
     user = models.ForeignKey(User)
-    method = models.CharField(max_length=20, default='email', choices=ALERT_BACKEND_CHOICES)
+    backend = models.CharField(max_length=20, default='EmailBackend', choices=ALERT_BACKEND_CHOICES)
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     
     title = models.CharField(max_length=250, default=lambda: "%s alert" % Site.objects.get_current().name)
@@ -30,7 +30,7 @@ class Alert(models.Model):
     
     
     def send(self):
-        backend = Alert._get_backend(self.method)
+        backend = Alert._get_backend(self.backend)
         try:
             backend.notify(self)
             self.is_sent = True
@@ -44,8 +44,8 @@ class Alert(models.Model):
         
         
     @classmethod
-    def _get_backend(cls, method):
-        return ALERT_BACKENDS[method]
+    def _get_backend(cls, backend):
+        return ALERT_BACKENDS[backend]
 
 
 

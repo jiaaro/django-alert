@@ -21,7 +21,10 @@ DATABASES = {
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+)
+
+TEMPLATE_DIRS = (
+    os.path.join(PROJECT_ROOT, 'templates'),
 )
 
 MIDDLEWARE_CLASSES = (
@@ -42,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    
     'alert',
     'alert_tests',
 )

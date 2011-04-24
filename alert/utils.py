@@ -1,6 +1,7 @@
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
+from django.template import TemplateDoesNotExist
 
 ALERT_TYPES = {}
 ALERT_BACKENDS = {}
@@ -22,7 +23,7 @@ class AlertMeta(type):
         
         new_alert.id = getattr(new_alert, 'id', name)
         
-        if new_alert.id in ALERT_TYPE_CHOICES: 
+        if new_alert.id in ALERT_TYPES.keys():
             raise AlertIDAlreadyInUse("The alert ID, \"%s\" was delared more than once" % new_alert.id)
         
         ALERT_TYPES[new_alert.id] = new_alert()
@@ -37,6 +38,7 @@ class BaseAlert(object):
     
     default = False
     sender = None
+    template_filetype = "txt"
     
     
     def __init__(self):
@@ -63,7 +65,7 @@ class BaseAlert(object):
             template_kwargs = {'backend': backend, 'context': context } 
             Alert.objects.create(
                                  user=user, 
-                                 method=backend.id,
+                                 backend=backend.id,
                                  alert_type=self.id,
                                  title=self.get_title(**template_kwargs),
                                  body=self.get_body(**template_kwargs)
@@ -80,14 +82,28 @@ class BaseAlert(object):
     
     def get_template_context(self, **kwargs):
         return kwargs
-    
+
+
+    def _get_template(self, backend, part, filetype='txt'):
+        template = "alerts/%s/%s/%s.%s" % (self.id, backend.id, part, filetype)
+        try:
+            find_template(template)
+            return template
+        except TemplateDoesNotExist:
+            pass
+        
+        template = "alerts/%s/%s.%s" % (self.id, part, filetype)
+        find_template(template)
+        
+        return template
+        
     
     def get_title_template(self, backend, context):
-        return "alerts/%s/%s/title.txt" % (self.id, backend.id)
+        return self._get_template(backend, 'title', self.template_filetype)
     
     
     def get_body_template(self, backend, context):
-        return "alerts/%s/%s/body.txt" % (self.id, backend.id)
+        return self._get_template(backend, 'body', self.template_filetype)
     
     
     def get_title(self, backend, context):
@@ -111,14 +127,15 @@ class AlertBackendMeta(type):
 
     def __new__(cls, name, bases, attrs):
         new_alert_backend = super(AlertBackendMeta, cls).__new__(cls, name, bases, attrs)
-        new_alert_backend.id = getattr(new_alert_backend, 'id', name)
         
         # If this isn't a subclass of BaseAlert, don't do anything special.
         parents = [b for b in bases if isinstance(b, AlertBackendMeta)]
         if not parents: 
             return new_alert_backend
         
-        if new_alert_backend.id in ALERT_BACKEND_CHOICES: 
+        new_alert_backend.id = getattr(new_alert_backend, 'id', name)
+        
+        if new_alert_backend.id in ALERT_BACKENDS.keys(): 
             raise AlertBackendIDAlreadyInUse("The alert ID, \"%s\" was delared more than once" % new_alert_backend.id)
         
         ALERT_BACKENDS[new_alert_backend.id] = new_alert_backend()
@@ -127,7 +144,7 @@ class AlertBackendMeta(type):
         return new_alert_backend
 
 
-class AlertBackend(object):
+class BaseAlertBackend(object):
     __metaclass__ = AlertBackendMeta
     
     
