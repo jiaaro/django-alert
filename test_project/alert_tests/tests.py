@@ -90,7 +90,7 @@ class AlertBackendTests(TestCase):
         self.assertTrue(isinstance(ALERT_BACKENDS["DummyBackend"], DummyBackend))
     
     
-    def test_backent_registration_only_happens_once(self):
+    def test_backend_registration_only_happens_once(self):
         self.assertEquals(len(ALERT_BACKENDS), 2)
         
         def define_again():
