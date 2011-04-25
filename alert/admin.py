@@ -7,5 +7,5 @@ class AlertAdmin(admin.ModelAdmin):
 class AlertPrefAdmin(admin.ModelAdmin):
     list_display = ("user", 'alert_type', "backend", 'preference')
 
-admin.site.register(Alert, AlertnAdmin)
+admin.site.register(Alert, AlertAdmin)
 admin.site.register(AlertPreference, AlertPrefAdmin)
