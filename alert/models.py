@@ -34,6 +34,7 @@ class Alert(models.Model):
         try:
             backend.send(self)
             self.is_sent = True
+            self.failed = False
             alert_sent.send(sender=ALERT_TYPES[self.alert_type], alert=self)
             
         except CouldNotSendError:
