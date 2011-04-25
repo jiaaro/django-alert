@@ -4,12 +4,19 @@ from django.core.cache import cache
 from alert.models import Alert
 
 
+class CacheRequiredError(Exception): pass
+
+
 class Command(BaseCommand):
     help = "Send pending alerts"
     
     _cache_key = 'currently_sending_alerts'
     
     def handle(self, *args, **kwargs):
+        cache.set("_dummy_cache_key", True, 60)
+        if not cache.get("_dummy_cache_key"): 
+            raise CacheRequiredError
+        
         if cache.get(self._cache_key, False):
             return
         
