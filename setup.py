@@ -8,8 +8,9 @@ from setuptools import setup
 
 setup(
     name='django-alert',
-    version='0.1',
+    version='0.1.1',
     author='James Robert',
+    author_email='jiaaro@gmail.com',
     description=('Send alerts, notifications, and messages based '
                 'on events in your django application'),
     license='MIT',

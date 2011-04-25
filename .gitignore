@@ -1,3 +1,5 @@
 
 .DS_Store
 *.pyc
+/django_alert.egg-info/
+/dist/
