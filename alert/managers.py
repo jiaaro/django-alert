@@ -20,6 +20,13 @@ class PendingAlertManager(AlertManager):
 class AlertPrefsManager(Manager):
     
     def get_user_prefs(self, user):
+        if not user.is_authenticated():
+            return dict(((notice_type.id, backend.id), False)
+                            for notice_type in ALERT_TYPES.values()
+                            for backend in ALERT_BACKENDS.values()
+                        )
+        
+            
         alert_prefs = self.get_query_set().filter(user=user)
         
         prefs = {}
