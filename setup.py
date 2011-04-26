@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='django-alert',
-    version='0.1.3',
+    version='0.1.4',
     author='James Robert',
     author_email='jiaaro@gmail.com',
     description=('Send alerts, notifications, and messages based '
@@ -16,7 +16,7 @@ setup(
     license='MIT',
     keywords='django alerts notifications social',
     url='https://github.com/jiaaro/django-alert/',
-    packages=['alert'],
+    packages=['alert', 'alert.management', 'alert.management.commands'],
     long_description=__doc__,
     classifiers=[
     	'Development Status :: 5 - Production/Stable',
