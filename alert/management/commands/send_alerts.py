@@ -14,7 +14,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **kwargs):
         cache.set("_dummy_cache_key", True, 60)
-        if not cache.get("_dummy_cache_key"): 
+        if not cache.get("_dummy_cache_key", False): 
             raise CacheRequiredError
         
         if cache.get(self._cache_key, False):
