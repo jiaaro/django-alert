@@ -51,88 +51,165 @@
 
     <p>## Making Alerts ##
 
+
+
 Create an "alerts.py" file and import it at the bottom of your 
+
 models.py file. This is where you will define all your alert classes. Every 
+
 alert is subclassed from "alert.Alert"
+
+
 
 Here is an example alert that is sent to users when they first sign up:
 
+
+
     from alert.utils import BaseAlert
+
     from django.contrib.auth.models import User
 
+
+
     class WelcomeAlert(Alert):
+
 		    title = 'Welcome new users'
+
 		    description = 'When a new user signs up, send them a welcome email'
+
     
+
 		    signal = post_save
+
 		    sender = User
+
 		    
+
 		    default = False
+
     
+
     		def before(self, created, **kwargs):
+
     			return created
+
     
+
 		    def get_applicable_users(self, instance, **kwargs):
+
         		return [instance]
+
+
+
 
 
 ## Signals ##
 
+
+
 When an alert is sent, a signal is fired (found in alert.signals). The 
+
 "sender" keyword argument is the Alert you defined (WelcomeAlert in 
+
 this case).
+
+
 
 example:
 
+
+
     from alert.signals import alert_sent
 
+
+
     def do_something_after_welcome_alert_is_sent(sender, alert, **kwargs):
+
         pass
 
+
+
     alert_sent.connect(do_something_after_welcome_alert_is_sent, 
+
                           sender=WelcomeAlert)
+
 </p><h2>Dependencies</h2>
 <p>django
+
 </p>
 <h2>Install</h2>
 <p>## Installation ##
 
+
+
  1. Install lib with pip:
+
  
+
     `pip install django-alert`
+
    
+
     **- OR -**
+
+
 
     Put the "alert" directory somewhere in your python path
 
+
+
  2. Add "alert" to your installed apps (in the settings.py file)
+
 </p>
 <h2>License</h2>
 <p>The MIT License
 
+
+
 Copyright (c) 2011 James Robert
 
+
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
+
 of this software and associated documentation files (the "Software"), to deal
+
 in the Software without restriction, including without limitation the rights
+
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+
 copies of the Software, and to permit persons to whom the Software is
+
 furnished to do so, subject to the following conditions:
 
+
+
 The above copyright notice and this permission notice shall be included in
+
 all copies or substantial portions of the Software.
 
+
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+
 THE SOFTWARE.</p>
 <h2>Authors</h2>
-<p>James Robert (jiaaro@gmail.com)<br/><br/>      </p>
+<p>James Robert (jiaaro@gmail.com)
+<br/>
+<br/>      </p>
 <h2>Contact</h2>
-<p>James Robert (jiaaro@gmail.com)<br/>      </p>
+<p>James Robert (jiaaro@gmail.com)
+<br/>      </p>
 
 
     <h2>Download</h2>
@@ -152,6 +229,19 @@ THE SOFTWARE.</p>
 
   </div>
 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1898350-13']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
   
 </body>
 </html>
