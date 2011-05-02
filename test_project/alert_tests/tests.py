@@ -126,6 +126,10 @@ class AlertBackendTests(TestCase):
     def test_backends_use_supplied_id(self):
         self.assertTrue(isinstance(ALERT_BACKENDS["EpicFail"], EpicFailBackend))
     
+    def test_pending_manager(self):
+        self.assertEqual(Alert.pending.all().count(), len(ALERT_BACKENDS))
+        management.call_command("send_alerts")
+        self.assertEqual(Alert.pending.all().count(), 1)
     
     def test_backend_registration_only_happens_once(self):
         self.assertEquals(len(ALERT_BACKENDS), 4)
@@ -190,7 +194,6 @@ class ConcurrencyTests(TransactionTestCase):
         [p.join() for p in threads]
         
         self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(Alert.pending.count(), 0)
 
 
 class EmailBackendTests(TestCase):
