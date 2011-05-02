@@ -12,7 +12,7 @@ class PendingAlertManager(AlertManager):
     
     def get_query_set(self, *args, **kwargs):
         qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
-        return qs.filter(is_sent=False, failed=False, when__gte=datetime.now())
+        return qs.filter(is_sent=False)
     
     
     
