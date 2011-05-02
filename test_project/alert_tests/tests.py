@@ -190,6 +190,7 @@ class ConcurrencyTests(TransactionTestCase):
         [p.join() for p in threads]
         
         self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(Alert.pending.count(), 0)
 
 
 class EmailBackendTests(TestCase):
