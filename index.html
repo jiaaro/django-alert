@@ -3,7 +3,7 @@
 <head>
   <meta charset='utf-8'>
 
-  <title>jiaaro/django-alert @ GitHub</title>
+  <title>Django Alert (by @jiaaro)</title>
 
   <style type="text/css">
     body {
@@ -42,97 +42,72 @@
         <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
 
-    <h1><a href="http://github.com/jiaaro/django-alert">django-alert</a>
+    <h1><a href="http://github.com/jiaaro/django-alert">Django Alert</a>
       <span class="small">by <a href="http://github.com/jiaaro">jiaaro</a></span></h1>
 
     <div class="description">
-      Send alerts, notifications, and messages based on events in your django application
+      Send alerts, notifications, and messages based on events (signals) in your django application
     </div>
 
-    <p>## Making Alerts ##
+	<div id="readme" class="announce instapaper_body markdown" data-path="/"><span class="name"></span><div class="wikistyle"><h2>Installation</h2>
 
-Create an "alerts.py" file and import it at the bottom of your 
+<ol>
+<li>
+<p>Install lib with pip:</p>
+
+<p><code>pip install django-alert</code></p>
+
+<p><strong>- OR -</strong></p>
+
+<p>Put the "alert" directory somewhere in your python path</p>
+</li>
+<li><p>Add "alert" to your installed apps (in the settings.py file)</p></li>
+</ol><h2>Making Alerts</h2>
+
+<p>Create an "alerts.py" file and import it at the bottom of your 
 models.py file. This is where you will define all your alert classes. Every 
-alert is subclassed from "alert.Alert"
+alert is subclassed from "alert.Alert"</p>
 
-Here is an example alert that is sent to users when they first sign up:
+<p>Here is an example alert that is sent to users when they first sign up:</p>
 
-    from alert.utils import BaseAlert
-    from django.contrib.auth.models import User
+<pre><code>from alert.utils import BaseAlert
+from django.contrib.auth.models import User
 
-    class WelcomeAlert(Alert):
-		    title = 'Welcome new users'
-		    description = 'When a new user signs up, send them a welcome email'
-    
-		    signal = post_save
-		    sender = User
-		    
-		    default = False
-    
-    		def before(self, created, **kwargs):
-    			return created
-    
-		    def get_applicable_users(self, instance, **kwargs):
-        		return [instance]
+class WelcomeAlert(Alert):
+        title = 'Welcome new users'
+        description = 'When a new user signs up, send them a welcome email'
 
+        signal = post_save
+        sender = User
 
-## Signals ##
+        default = False
 
-When an alert is sent, a signal is fired (found in alert.signals). The 
+        def before(self, created, **kwargs):
+            return created
+
+        def get_applicable_users(self, instance, **kwargs):
+            return [instance]
+</code></pre>
+
+<h2>Signals</h2>
+
+<p>When an alert is sent, a signal is fired (found in alert.signals). The 
 "sender" keyword argument is the Alert you defined (WelcomeAlert in 
-this case).
+this case).</p>
 
-example:
+<p>example:</p>
 
-    from alert.signals import alert_sent
+<pre><code>from alert.signals import alert_sent
 
-    def do_something_after_welcome_alert_is_sent(sender, alert, **kwargs):
-        pass
+def do_something_after_welcome_alert_is_sent(sender, alert, **kwargs):
+    pass
 
-    alert_sent.connect(do_something_after_welcome_alert_is_sent, 
-                          sender=WelcomeAlert)
-</p><h2>Dependencies</h2>
-<p>django
-</p>
-<h2>Install</h2>
-<p>## Installation ##
-
- 1. Install lib with pip:
- 
-    `pip install django-alert`
+alert_sent.connect(do_something_after_welcome_alert_is_sent, 
+                      sender=WelcomeAlert)
+</code></pre></div></div>
    
-    **- OR -**
-
-    Put the "alert" directory somewhere in your python path
-
- 2. Add "alert" to your installed apps (in the settings.py file)
-</p>
-<h2>License</h2>
-<p>The MIT License
-
-Copyright (c) 2011 James Robert
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.</p>
-<h2>Authors</h2>
-<p>James Robert (jiaaro@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>James Robert (jiaaro@gmail.com)<br/>      </p>
+	<h2>Authors / Contact</h2>
+	<p>James Robert (jiaaro@gmail.com)</p>
 
 
     <h2>Download</h2>
