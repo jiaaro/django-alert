@@ -150,9 +150,11 @@ class BaseAlertBackend(object):
     
     
     def mass_send(self, alerts):
-        try:
-            [self.send(alert) for alert in alerts]
-        except TypeError:
+        from .models import Alert
+        if isinstance(alerts, Alert):
             self.send(alerts)
+        else:
+            [self.send(alert) for alert in alerts]
+            
     
     
