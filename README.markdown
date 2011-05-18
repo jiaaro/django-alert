@@ -14,15 +14,15 @@
 ## Making Alerts ##
 
 Create an "alerts.py" file and import it at the bottom of your 
-models.py file. This is where you will define all your alert classes. Every 
-alert is subclassed from "alert.Alert"
+models.py file. This is where you will define your alert class. Every 
+alert is subclassed from "alert.utils.BaseAlert"
 
 Here is an example alert that is sent to users when they first sign up:
 
     from alert.utils import BaseAlert
     from django.contrib.auth.models import User
 
-    class WelcomeAlert(Alert):
+    class WelcomeAlert(BaseAlert):
 		    title = 'Welcome new users'
 		    description = 'When a new user signs up, send them a welcome email'
     
