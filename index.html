@@ -73,7 +73,7 @@ alert is subclassed from "alert.Alert"</p>
 <pre><code>from alert.utils import BaseAlert
 from django.contrib.auth.models import User
 
-class WelcomeAlert(Alert):
+class WelcomeAlert(BaseAlert):
         title = 'Welcome new users'
         description = 'When a new user signs up, send them a welcome email'
 
