@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='django-alert',
-    version='0.1.6',
+    version='0.1.7',
     author='James Robert',
     author_email='jiaaro@gmail.com',
     description=('Send alerts, notifications, and messages based '
