@@ -12,7 +12,7 @@ class PendingAlertManager(AlertManager):
     
     def get_query_set(self, *args, **kwargs):
         qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
-        return qs.filter(is_sent=False)
+        return qs.filter(when__lte=datetime.now(), is_sent=False)
     
     
     
@@ -44,6 +44,8 @@ class AlertPrefsManager(Manager):
     def get_recipients_for_notice(self, notice_type, users):
         if isinstance(notice_type, basestring):
             notice_type = ALERT_TYPES[notice_type]
+        
+        if not users: return ()
         
         alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=users)
         
