@@ -9,6 +9,12 @@ class AlertManager(Manager): pass
 
 
 class PendingAlertManager(AlertManager):
+    """
+    Alerts that are ready to send NOW.
+    
+    This is not the same as unsent alerts; alerts scheduled to be sent in the
+    future will not be affected by this manager.
+    """
     
     def get_query_set(self, *args, **kwargs):
         qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)

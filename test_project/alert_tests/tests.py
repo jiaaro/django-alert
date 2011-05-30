@@ -2,7 +2,6 @@ import time
 from uuid import uuid1
 from datetime import datetime
 
-from multiprocessing import Process
 from threading import Thread
 
 from django.test import TestCase, TransactionTestCase
@@ -10,12 +9,12 @@ from django.contrib.auth.models import User
 from django.core import management, mail
 from django.conf import settings
 from django.db.models.signals import post_save
-from django.db import transaction
 
 from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse, CouldNotSendError
 from alert.models import Alert
 from django.core.mail import send_mail
+from alert.forms import AlertPreferenceForm, UnsubscribeForm
 
 
 
@@ -68,6 +67,12 @@ class SlowBackend(BaseAlertBackend):
         send_mail("asdf", 'woot', 'fake@gmail.com', ['superfake@gmail.com'])
 
 
+
+
+#################################################
+###                 Tests                     ###
+#################################################
+
 class AlertTests(TestCase):        
 
     def setUp(self):
@@ -90,7 +95,6 @@ class AlertTests(TestCase):
             else:
                 self.assertEqual(alert.title, "default title")
                 self.assertEqual(alert.body, "default body")
-        
     
     
     def test_alert_registration_only_happens_once(self):
@@ -103,13 +107,9 @@ class AlertTests(TestCase):
                 signal = post_save
         
         self.assertRaises(AlertIDAlreadyInUse, define_again)
-
-
-    def test_alert_sending(self):
-        pass
         
         
-               
+
 class AlertBackendTests(TestCase):
 
     def setUp(self):
@@ -178,7 +178,11 @@ class ConcurrencyTests(TransactionTestCase):
         self.user = User.objects.create(username=username, email=email)
         
         
-    def testMultipleSimultaneousSendScripts(self):    
+    def _testMultipleSimultaneousSendScripts(self):    
+        """
+        this doesn't do what it is supposed to so added and underscore to
+        the name to skip it for now
+        """
         self.assertFalse("sqlite" in settings.DATABASES['default']['ENGINE'],
             """Sqlite uses an in-memory database, which does not work with the concurrency tests.
                 Please change the test database to another database (such as MySql).
@@ -189,7 +193,7 @@ class ConcurrencyTests(TransactionTestCase):
         
         self.assertEqual(len(mail.outbox), 0)
             
-        threads = [Thread(target=management.call_command, args=('send_alerts',)) for i in range(10)]
+        threads = [Thread(target=management.call_command, args=('send_alerts',)) for i in range(100)]
         [p.start() for p in threads]
         [p.join() for p in threads]
         
@@ -200,3 +204,17 @@ class EmailBackendTests(TestCase):
     
     def setUp(self):
         pass
+
+
+class FormTests(TestCase):
+    
+    def setUp(self):
+        self.user = User.objects.create(username='wootz', email='wootz@woot.com')
+    
+    def testNoArgs(self):
+        pref_form = self.assertRaises(TypeError, AlertPreferenceForm)
+        unsubscribe_form = self.assertRaises(TypeError, UnsubscribeForm)
+        
+    def simpleCase(self):
+        pref_form = AlertPreferenceForm(self.user)
+        unsubscribe_form = UnsubscribeForm(self.user)

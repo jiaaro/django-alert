@@ -30,23 +30,26 @@ class Alert(models.Model):
     
     
     def send(self):
-        backend = Alert._get_backend(self.backend)
+        backend = self.backend_obj
         try:
             backend.send(self)
             self.is_sent = True
             self.failed = False
-            alert_sent.send(sender=ALERT_TYPES[self.alert_type], alert=self)
+            alert_sent.send(sender=self.alert_type_obj, alert=self)
             
         except CouldNotSendError:
             self.failed = True
         
         self.last_attempt = datetime.now()
         self.save()
-        
-        
-    @classmethod
-    def _get_backend(cls, backend):
-        return ALERT_BACKENDS[backend]
+    
+    @property
+    def alert_type_obj(self):
+        return ALERT_TYPES[self.alert_type]
+    
+    @property
+    def backend_obj(self):
+        return ALERT_BACKENDS[self.backend]
 
 
 
@@ -61,6 +64,15 @@ class AlertPreference(models.Model):
     
     class Meta:
         unique_together = ('user', 'alert_type', 'backend')
+        
+    @property
+    def alert_type_obj(self):
+        return ALERT_TYPES[self.alert_type]
+    
+    @property
+    def backend_obj(self):
+        return ALERT_BACKENDS[self.backend]
+    
    
-
+import alert.listeners #@UnusedImport
 import alert.backends #@UnusedImport
