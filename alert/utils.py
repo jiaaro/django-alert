@@ -1,7 +1,9 @@
+from datetime import datetime
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
+from django.contrib.auth.models import User
 
 ALERT_TYPES = {}
 ALERT_BACKENDS = {}
@@ -21,7 +23,14 @@ class AlertMeta(type):
         if not parents: 
             return new_alert
         
-        new_alert.id = getattr(new_alert, 'id', name)
+        # allow subclasses to use the auto id feature
+        id = getattr(new_alert, 'id', name)
+        for parent in parents:
+            if getattr(parent, 'id', None) == id:
+                id = name
+                break
+        
+        new_alert.id = id
         
         if new_alert.id in ALERT_TYPES.keys():
             raise AlertIDAlreadyInUse("The alert ID, \"%s\" was delared more than once" % new_alert.id)
@@ -41,6 +50,7 @@ class BaseAlert(object):
     template_filetype = "txt"
     
     
+    
     def __init__(self):
         kwargs = {}
         if self.sender:
@@ -58,6 +68,8 @@ class BaseAlert(object):
         from alert.models import Alert
         
         users = self.get_applicable_users(**kwargs)
+        users = [users] if isinstance(users, User) else users
+        
         site = Site.objects.get_current()
         
         for user, backend in AlertPreference.objects.get_recipients_for_notice(self.id, users):
@@ -67,6 +79,7 @@ class BaseAlert(object):
                                  user=user, 
                                  backend=backend.id,
                                  alert_type=self.id,
+                                 when=self.get_send_time(**kwargs),
                                  title=self.get_title(**template_kwargs),
                                  body=self.get_body(**template_kwargs)
                                  )
@@ -74,6 +87,10 @@ class BaseAlert(object):
     
     def before(self, **kwargs):
         pass
+    
+    
+    def get_send_time(self, **kwargs):
+        return datetime.now()
     
     
     def get_applicable_users(self, instance, **kwargs):

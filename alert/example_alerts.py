@@ -1,59 +1,142 @@
-from alert.utils import BaseAlert
+from collections import defaultdict
+from datetime import datetime, timedelta
+from django.db.models.signals import post_save
 from django.contrib.auth.models import User
+
+from alert.utils import BaseAlert
+
+from example_news_app.models import NewsItem
 
 
 
 class WelcomeAlert(BaseAlert):
     title = 'Welcome Users'
-    description = 'When news breaks, be the first to react and profit.'
+    description = 'When a user signs up, send them a nice welcome email.'
     
-    signal = new_feature
+    signal = post_save
+    sender = User
+    
+    # by default all users will receive this alert
+    default = True
+    
+    def before(self, created, **kwargs):
+        # if created is false, no alert will be sent
+        return created
+    
+    def get_applicable_users(self, instance, **kwargs):
+        return instance
+
+
+
+class NewsAlert(BaseAlert):
+    title = 'News'
+    description = 'Get notified as soon as news updates go out.'
+    
+    signal = post_save
+    sender = NewsItem
+    
+    # by default users will not receive this alert (i.e. it's opt-in)
     default = False
     
+    def before(self, created, **kwargs):
+        return created
+    
     def get_applicable_users(self, **kwargs):
+        # this alert applies to all users (but this queryset will be
+        # filtered based on the users' respective alert preferences
         return User.objects.all()
 
 
-class NewTopic(BaseAlert):
-    title = 'New Topic Alert'
-    description = 'Get notified as soon as new topics go live.'
+
+# When a user signs up, one way to keep them engaged is to contact them
+# periodically over the next month
+#
+# The easiest way to do this is to schedule all their emails in advance (we'll
+# do 3 in this example:
+#
+#  - 3 days after signup
+#  - 7 days after signup
+#  - 30 days after signup 
+
+class MarketingDrip1(BaseAlert):
+    """
+    first alert in the marketing drip (3 days after signup)
     
-    signal = market_opened
-    default = False
+    templates...
     
-    def get_applicable_users(self, **kwargs):
-        return User.objects.all()
+    subject line: 
+    "alerts/MarketingDrip1/EmailBackend/title.txt"
+    
+    body text:
+    "alerts/MarketingDrip1/EmailBackend/body.txt"
+    
+    html version:
+    "alerts/MarketingDrip1/EmailBackend/body.html"
+    """
+    title = "Trickle"
+    description = "Send scheduled marketing emails to users once they give their email"
+    
+    # don't send on any backends except email
+    default = defaultdict(lambda: False)
+    default['EmailBackend'] = True
+    
+    signal = post_save
+    sender = User
+    
+    def before(self, created, **kwargs):
+        return created
+    
+    def get_applicable_users(self, instance, **kwargs):
+        return instance
+
+    def get_send_time(self, **kwargs):
+        return datetime.now + timedelta(days=3)
+    
 
 
-class CashOut(BaseAlert):
-    title = 'Topic cash-out alert'
-    description = 'Get notified of your results when a topic is judged.'
+class MarketingDrip2(MarketingDrip1):
+    """
+    second alert in the marketing drip (7 days after signup)
     
-    signal = market_cashed_out
-    default = True
+    We subclass MarketingDrip1 to avoid re-writing all that logic
     
-    def get_applicable_users(self, cashout_orders, **kwargs):
-        profiles = set(order.userprofile for order in cashout_orders)
-        return set(prof.user for prof in profiles)
+    templates...
     
-    def get_template_context(self, BACKEND, USER, cashout_orders, **kwargs):
-        order = [o for o in cashout_orders if o.userprofile.user_id == USER.id]
-        locals().update(kwargs)
-        return locals()
+    subject line: 
+    "alerts/MarketingDrip2/EmailBackend/title.txt"
+    
+    body text:
+    "alerts/MarketingDrip2/EmailBackend/body.txt"
+    
+    html version:
+    "alerts/MarketingDrip2/EmailBackend/body.html"
+    """
 
+    def get_send_time(self, **kwargs):
+        return datetime.now + timedelta(days=7)
+    
 
-class TopicClosing(BaseAlert):
-    title = 'Closing soon alert'
-    description = 'Get notified when topics are closing.'
+class MarketingDrip3(MarketingDrip1):
+    """
+    third alert in the marketing drip (30 days after signup)
     
-    signal = market_closing_soon
-    default = True
+    We could subclass MarketingDrip1 or MarketingDrip2 at this point. I'm
+    using MarketingDrip1 to keep things consistent.
     
-    def get_applicable_users(self, instance, days_left, **kwargs):
-        if days_left != 1:
-            return User.objects.none()
-        market = instance
-        return User.objects.filter(userprofile__order__market=market).distinct()
+    templates...
+    
+    subject line: 
+    "alerts/MarketingDrip3/EmailBackend/title.txt"
+    
+    body text:
+    "alerts/MarketingDrip3/EmailBackend/body.txt"
+    
+    html version:
+    "alerts/MarketingDrip4/EmailBackend/body.html"
+    """
+
+    def get_send_time(self, **kwargs):
+        return datetime.now + timedelta(days=30)
 
     
     

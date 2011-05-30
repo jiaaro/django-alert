@@ -17,8 +17,11 @@ from django.core.mail import send_mail
 from alert.forms import AlertPreferenceForm, UnsubscribeForm
 
 
-
-class WelcomeAlert(BaseAlert):
+class SubclassTestingAlert(BaseAlert):
+    """
+    This will never send any alerts - it's just a check to make sure that
+    subclassing alerts doesn't explode
+    """
     title = 'Welcome new users'
     description = 'When a new user signs up, send them a welcome email'
 
@@ -26,14 +29,23 @@ class WelcomeAlert(BaseAlert):
     sender = User
     
     default = True
-
-    def before(self, created, **kwargs):
-        return created
-
-
+    
+    def before(self, **kwargs):
+        return False
+    
     def get_applicable_users(self, instance, **kwargs):
         return [instance]
 
+
+class WelcomeAlert(SubclassTestingAlert):
+    """
+    everything is inherited from SubclassTestingAlert
+    
+    only change is that alerts will actually be sent
+    """
+
+    def before(self, created, **kwargs):
+        return created
 
 
 class DummyBackend(BaseAlertBackend):
@@ -99,7 +111,7 @@ class AlertTests(TestCase):
     
     def test_alert_registration_only_happens_once(self):
         self.assertTrue(isinstance(ALERT_TYPES["WelcomeAlert"], WelcomeAlert))
-        self.assertEquals(len(ALERT_TYPES), 1)
+        self.assertEquals(len(ALERT_TYPES), 2)
         
         def define_again():
             class WelcomeAlert(BaseAlert):
