@@ -190,7 +190,7 @@ class ConcurrencyTests(TransactionTestCase):
         self.user = User.objects.create(username=username, email=email)
         
         
-    def _testMultipleSimultaneousSendScripts(self):    
+    def testMultipleSimultaneousSendScripts(self):    
         """
         this doesn't do what it is supposed to so added and underscore to
         the name to skip it for now
@@ -206,8 +206,14 @@ class ConcurrencyTests(TransactionTestCase):
         self.assertEqual(len(mail.outbox), 0)
             
         threads = [Thread(target=management.call_command, args=('send_alerts',)) for i in range(100)]
-        [p.start() for p in threads]
-        [p.join() for p in threads]
+        
+        for t in threads:
+            t.start()
+            
+            # space them out a little tiny bit
+            time.sleep(0.001)
+        
+        [t.join() for t in threads]
         
         self.assertEqual(len(mail.outbox), 2)
 
