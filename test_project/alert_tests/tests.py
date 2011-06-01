@@ -191,17 +191,12 @@ class ConcurrencyTests(TransactionTestCase):
         
         
     def testMultipleSimultaneousSendScripts(self):    
-        """
-        this doesn't do what it is supposed to so added and underscore to
-        the name to skip it for now
-        """
         self.assertFalse("sqlite" in settings.DATABASES['default']['ENGINE'],
             """Sqlite uses an in-memory database, which does not work with the concurrency tests.
                 Please change the test database to another database (such as MySql).
                 
                 Note that the alert django app will work fine with Sqlite. It's only the 
                 concurrency *tests* that do not work with sqlite.""")
-
         
         self.assertEqual(len(mail.outbox), 0)
             
