@@ -28,7 +28,7 @@ class AlertPreferenceForm(forms.Form):
         super(AlertPreferenceForm, self).__init__(*args, **kwargs)
         
         for ((alert_type, backend), pref) in self.prefs:
-            if alert_type not in self.alerts or backend not in self.backends: 
+            if (alert_type not in [a.id for a in self.alerts] or backend not in [b.id for b in self.backends]): 
                 continue
             
             attr = self._field_id(alert_type, backend)
@@ -45,12 +45,12 @@ class AlertPreferenceForm(forms.Form):
         alert_prefs = []
         for backend in self.backends:
             for alert in self.alerts:
-                attr = self._field_id(alert, backend)
+                attr = self._field_id(alert.id, backend.id)
     
                 alert_pref, created = AlertPreference.objects.get_or_create(
                                                 user=self.user,
-                                                alert_type=alert,
-                                                backend=backend
+                                                alert_type=alert.id,
+                                                backend=backend.id
                                                 )
                 alert_pref.preference = self.cleaned_data[attr]
                 alert_pref.save()
@@ -76,11 +76,11 @@ class UnsubscribeForm(AlertPreferenceForm):
     """
     
     def __init__(self, user, *args, **kwargs):
-        return super(UnsubscribeForm, self).__init__(user, *args, **kwargs)
+        super(UnsubscribeForm, self).__init__(user, *args, **kwargs)
         
         for backend in self.backends:
             for alert in self.alerts:
-                field_id = self._field_id(alert, backend)
+                field_id = self._field_id(alert.id, backend.id)
                 self.fields[field_id].widget = forms.HiddenInput()
                 self.fields[field_id].initial = False
     
@@ -90,8 +90,8 @@ class UnsubscribeForm(AlertPreferenceForm):
         affected_alerts = Alert.objects.filter(
                                                is_sent=False,
                                                user=self.user,
-                                               backend__in=self.backends.keys(),
-                                               alert_type__in=self.alerts.keys()
+                                               backend__in=[backend.id for backend in self.backends],
+                                               alert_type__in=[alert.id for alert in self.alerts]
                                                )
         affected_alerts.delete()
         return alert_prefs

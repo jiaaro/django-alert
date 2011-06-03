@@ -120,6 +120,9 @@ class AlertTests(TestCase):
         
         self.assertRaises(AlertIDAlreadyInUse, define_again)
         
+    def test_alert_id_is_key_in_ALERT_TYPES(self):
+        for key, alert in ALERT_TYPES.items():
+            self.assertEqual(key, alert.id)
         
 
 class AlertBackendTests(TestCase):
@@ -228,6 +231,17 @@ class FormTests(TestCase):
         pref_form = self.assertRaises(TypeError, AlertPreferenceForm)
         unsubscribe_form = self.assertRaises(TypeError, UnsubscribeForm)
         
-    def simpleCase(self):
+    def testSimpleCase(self):
         pref_form = AlertPreferenceForm(self.user)
         unsubscribe_form = UnsubscribeForm(self.user)
+        
+        self.assertEqual(len(pref_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
+        self.assertEqual(len(unsubscribe_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
+        
+    def testUnsubscribeFormHasNoVisibleFields(self):
+        from django.forms import HiddenInput
+        unsubscribe_form = UnsubscribeForm(self.user)
+        
+        for field in unsubscribe_form.fields.values():
+            self.assertTrue(isinstance(field.widget, HiddenInput))
+            
