@@ -15,7 +15,7 @@ setup(
                 'on events in your django application'),
     license='MIT',
     keywords='django alerts notifications social',
-    url='https://github.com/jiaaro/django-alert/',
+    url='https://djangoalert.com',
     packages=['alert', 'alert.management', 'alert.management.commands'],
     long_description=__doc__,
     classifiers=[
