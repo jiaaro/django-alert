@@ -172,6 +172,28 @@ class BaseAlertBackend(object):
             self.send(alerts)
         else:
             [self.send(alert) for alert in alerts]
-            
+              
+              
+def super_accepter(arg, lookup_dict):
+    """  
+    for the alerts and backends keyword arguments... 
+      - provides resonable defaults
+      - accept a single alert/backend or a list of them
+      - accept alert/backend class or the a string containing the alert/backend id
+    """
+    # reasonable default
+    if arg is None: return lookup_dict.values()
     
+    # single item or a list
+    if not isinstance(arg, (tuple, list)): 
+        arg = [arg]
+        
+    # normalize the arguments
+    ids = ((a if isinstance(a, basestring) else a.id) for a in arg)
     
+    # remove duplicates
+    _set = {}
+    ids = (_set.setdefault(id,id) for id in ids if id not in _set)
+    
+    # lookup the objects 
+    return [lookup_dict[id] for id in ids]

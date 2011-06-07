@@ -1,7 +1,7 @@
 from django import forms
 
 from alert.models import AlertPreference, Alert
-from alert.utils import ALERT_TYPES, ALERT_BACKENDS, BaseAlert
+from alert.utils import ALERT_TYPES, ALERT_BACKENDS, BaseAlert, super_accepter
 
 
 
@@ -12,23 +12,18 @@ class AlertPreferenceForm(forms.Form):
     backend.
     """
     
-    def __init__(self, user, alerts=None, backends=None, *args, **kwargs):
+    def __init__(self, user, alerts=None, backends=None, *args, **kwargs):        
         self.user = user
-        
-        if alerts is None: 
-            alerts = ALERT_TYPES.values()
-        if backends is None: 
-            backends = ALERT_BACKENDS.values()
-            
-        self.alerts = alerts
-        self.backends = backends
-        
+        self.alerts = super_accepter(alerts, ALERT_TYPES)
+        self.backends = super_accepter(backends, ALERT_BACKENDS)
         self.prefs = AlertPreference.objects.get_user_prefs(user).items()
         
         super(AlertPreferenceForm, self).__init__(*args, **kwargs)
         
+        ids = lambda lst: (x.id for x in lst)
+        
         for ((alert_type, backend), pref) in self.prefs:
-            if (alert_type not in [a.id for a in self.alerts] or backend not in [b.id for b in self.backends]): 
+            if (alert_type not in ids(self.alerts) or backend not in ids(self.backends)): 
                 continue
             
             attr = self._field_id(alert_type, backend)

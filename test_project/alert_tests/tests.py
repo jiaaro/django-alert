@@ -10,7 +10,8 @@ from django.core import management, mail
 from django.conf import settings
 from django.db.models.signals import post_save
 
-from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS
+from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS,\
+    super_accepter
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse, CouldNotSendError
 from alert.models import Alert
 from django.core.mail import send_mail
@@ -245,3 +246,34 @@ class FormTests(TestCase):
         for field in unsubscribe_form.fields.values():
             self.assertTrue(isinstance(field.widget, HiddenInput))
             
+    def testSuperAccepterNone(self):
+        types = super_accepter(None, ALERT_TYPES)
+        backends = super_accepter(None, ALERT_BACKENDS)
+        
+        self.assertEqual(len(types), len(ALERT_TYPES))
+        self.assertEqual(len(backends), len(ALERT_BACKENDS))
+        
+    def testSuperAccepterSingle(self):
+        backends_by_class = super_accepter(EpicFailBackend, ALERT_BACKENDS)
+        backends_by_id = super_accepter("EpicFail", ALERT_BACKENDS)
+        
+        self.assertEqual(len(backends_by_class), 1)
+        self.assertEqual(len(backends_by_id), 1)
+        self.assertEqual(backends_by_class, backends_by_id)
+        
+    def testSuperAccepterList(self):
+        backends_by_class = super_accepter([EpicFailBackend, DummyBackend], ALERT_BACKENDS)
+        backends_by_id = super_accepter(["EpicFail", "DummyBackend"], ALERT_BACKENDS)
+        backends_by_mixed = super_accepter(["EpicFail", DummyBackend], ALERT_BACKENDS)
+        
+        self.assertEqual(len(backends_by_class), 2)
+        self.assertEqual(len(backends_by_id), 2)
+        self.assertEqual(len(backends_by_mixed), 2)
+        
+        self.assertEqual(backends_by_class, backends_by_id)
+        self.assertEqual(backends_by_class, backends_by_mixed)
+        self.assertEqual(backends_by_mixed, backends_by_id)
+        
+    def testSuperAccepterDuplicates(self):
+        backends = super_accepter([EpicFailBackend, DummyBackend, "EpicFail"], ALERT_BACKENDS)
+        self.assertEqual(len(backends), 2)
