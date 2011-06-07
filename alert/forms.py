@@ -12,9 +12,15 @@ class AlertPreferenceForm(forms.Form):
     backend.
     """
     
-    def __init__(self, user, *args, **kwargs):
-        alerts = kwargs.get('alerts', None)
-        backends = kwargs.get('backends', None)
+    def __init__(self, *args, **kwargs):
+        kwargs = kwargs.copy()
+        alerts = kwargs.pop('alerts', None)
+        backends = kwargs.pop('backends', None)
+        
+        if 'user' not in kwargs.keys():
+            raise TypeError("The \"user\" keyword argument is required but no keyword argument \"user\" was passed")
+        
+        user = kwargs.pop('user')
                 
         self.user = user
         self.alerts = super_accepter(alerts, ALERT_TYPES)
@@ -73,8 +79,8 @@ class UnsubscribeForm(AlertPreferenceForm):
     notifications. (the alert that is passed in)
     """
     
-    def __init__(self, user, *args, **kwargs):
-        super(UnsubscribeForm, self).__init__(user, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(UnsubscribeForm, self).__init__(*args, **kwargs)
         
         for backend in self.backends:
             for alert in self.alerts:
