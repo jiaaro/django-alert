@@ -233,15 +233,15 @@ class FormTests(TestCase):
         unsubscribe_form = self.assertRaises(TypeError, UnsubscribeForm)
         
     def testSimpleCase(self):
-        pref_form = AlertPreferenceForm(self.user)
-        unsubscribe_form = UnsubscribeForm(self.user)
+        pref_form = AlertPreferenceForm(user=self.user)
+        unsubscribe_form = UnsubscribeForm(user=self.user)
         
         self.assertEqual(len(pref_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
         self.assertEqual(len(unsubscribe_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
         
     def testUnsubscribeFormHasNoVisibleFields(self):
         from django.forms import HiddenInput
-        unsubscribe_form = UnsubscribeForm(self.user)
+        unsubscribe_form = UnsubscribeForm(user=self.user)
         
         for field in unsubscribe_form.fields.values():
             self.assertTrue(isinstance(field.widget, HiddenInput))

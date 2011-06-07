@@ -12,7 +12,10 @@ class AlertPreferenceForm(forms.Form):
     backend.
     """
     
-    def __init__(self, user, alerts=None, backends=None, *args, **kwargs):        
+    def __init__(self, user, *args, **kwargs):
+        alerts = kwargs.get('alerts', None)
+        backends = kwargs.get('backends', None)
+                
         self.user = user
         self.alerts = super_accepter(alerts, ALERT_TYPES)
         self.backends = super_accepter(backends, ALERT_BACKENDS)
