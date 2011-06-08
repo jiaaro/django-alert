@@ -73,7 +73,7 @@ class BaseAlert(object):
         site = Site.objects.get_current()
         
         for user, backend in AlertPreference.objects.get_recipients_for_notice(self.id, users):
-            context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, **kwargs)
+            context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, ALERT=self, **kwargs)
             template_kwargs = {'backend': backend, 'context': context } 
             Alert.objects.create(
                                  user=user, 
