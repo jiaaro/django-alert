@@ -7,7 +7,12 @@ class AlertAdmin(admin.ModelAdmin):
     list_display = ('user', 'title', 'backend', 'alert_type', 'failed', 'is_sent', 'created',)
     list_filter = ('alert_type', 'backend', 'is_sent', 'failed')
     search_fields = ('=user__username', '=user__email')
-
+    actions = ['resend']
+    
+    def resend(self, request, qs):
+        for alert in qs:
+            alert.send()
+    resend.short_description = "Resend selected alerts"
 
 class AlertPrefAdmin(admin.ModelAdmin):
     list_display = ("user", 'alert_type', "backend", 'preference')
