@@ -197,3 +197,13 @@ def super_accepter(arg, lookup_dict):
     
     # lookup the objects 
     return [lookup_dict[id] for id in ids]
+
+
+def unsubscribe_user(user, alerts=None, backends=None):
+    from .forms import UnsubscribeForm 
+    form = UnsubscribeForm(user=user, alerts=alerts, backends=backends)
+    
+    data = dict((field, False) for field in form.fields.keys())
+    
+    form = UnsubscribeForm(data, user=user, alerts=alerts, backends=backends)
+    form.save()
