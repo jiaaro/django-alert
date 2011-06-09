@@ -25,6 +25,8 @@ class Alert(models.Model):
     is_sent = models.BooleanField(default=False)
     failed = models.BooleanField(default=False)
     
+    site = models.ForeignKey(Site, default=lambda: Site.objects.get_current())
+    
     objects = AlertManager()
     pending = PendingAlertManager()
     
