@@ -42,7 +42,7 @@ class EmailBackend(BaseAlertBackend):
         recipient = alert.user.email
         if not recipient: raise CouldNotSendError
         
-        subject = alert.title
+        subject = alert.title.replace("\n", "").strip()
         to = [recipient]
         from_email = settings.DEFAULT_FROM_EMAIL 
         
