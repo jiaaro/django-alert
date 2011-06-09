@@ -60,6 +60,11 @@ class BaseAlert(object):
         
         self.signal.connect(self.signal_handler, **kwargs)
     
+    def __repr__(self):
+        return "<Alert: %s>" % self.id
+    
+    def __str__(self):
+        return str(self.id)
     
     def signal_handler(self, **kwargs):
     
@@ -170,6 +175,11 @@ class AlertBackendMeta(type):
 class BaseAlertBackend(object):
     __metaclass__ = AlertBackendMeta
     
+    def __repr__(self):
+        return "<AlertBackend: %s>" % self.id
+    
+    def __str__(self):
+        return str(self.id)
     
     def mass_send(self, alerts):
         from .models import Alert
