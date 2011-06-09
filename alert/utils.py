@@ -211,4 +211,5 @@ def unsubscribe_user(user, alerts=None, backends=None):
     data = dict((field, False) for field in form.fields.keys())
     
     form = UnsubscribeForm(data, user=user, alerts=alerts, backends=backends)
+    assert(form.is_valid())
     form.save()

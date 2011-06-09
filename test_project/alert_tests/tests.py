@@ -7,14 +7,14 @@ from threading import Thread
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.core import management, mail
+from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models.signals import post_save
 
 from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS,\
-    super_accepter
+    super_accepter, unsubscribe_user
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse, CouldNotSendError
-from alert.models import Alert
-from django.core.mail import send_mail
+from alert.models import Alert, AlertPreference
 from alert.forms import AlertPreferenceForm, UnsubscribeForm
 
 
@@ -126,6 +126,7 @@ class AlertTests(TestCase):
             self.assertEqual(key, alert.id)
         
 
+
 class AlertBackendTests(TestCase):
 
     def setUp(self):
@@ -146,6 +147,7 @@ class AlertBackendTests(TestCase):
         self.assertEqual(Alert.pending.all().count(), len(ALERT_BACKENDS))
         management.call_command("send_alerts")
         self.assertEqual(Alert.pending.all().count(), 1)
+    
     
     def test_backend_registration_only_happens_once(self):
         self.assertEquals(len(ALERT_BACKENDS), 4)
@@ -217,10 +219,12 @@ class ConcurrencyTests(TransactionTestCase):
         self.assertEqual(len(mail.outbox), 2)
 
 
+
 class EmailBackendTests(TestCase):
     
     def setUp(self):
         pass
+
 
 
 class FormTests(TestCase):
@@ -228,9 +232,11 @@ class FormTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(username='wootz', email='wootz@woot.com')
     
+    
     def testNoArgs(self):
         pref_form = self.assertRaises(TypeError, AlertPreferenceForm)
         unsubscribe_form = self.assertRaises(TypeError, UnsubscribeForm)
+        
         
     def testSimpleCase(self):
         pref_form = AlertPreferenceForm(user=self.user)
@@ -239,12 +245,14 @@ class FormTests(TestCase):
         self.assertEqual(len(pref_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
         self.assertEqual(len(unsubscribe_form.fields), len(ALERT_TYPES) * len(ALERT_BACKENDS))
         
+        
     def testUnsubscribeFormHasNoVisibleFields(self):
         from django.forms import HiddenInput
         unsubscribe_form = UnsubscribeForm(user=self.user)
         
         for field in unsubscribe_form.fields.values():
             self.assertTrue(isinstance(field.widget, HiddenInput))
+            
             
     def testSuperAccepterNone(self):
         types = super_accepter(None, ALERT_TYPES)
@@ -253,6 +261,7 @@ class FormTests(TestCase):
         self.assertEqual(len(types), len(ALERT_TYPES))
         self.assertEqual(len(backends), len(ALERT_BACKENDS))
         
+        
     def testSuperAccepterSingle(self):
         backends_by_class = super_accepter(EpicFailBackend, ALERT_BACKENDS)
         backends_by_id = super_accepter("EpicFail", ALERT_BACKENDS)
@@ -260,6 +269,7 @@ class FormTests(TestCase):
         self.assertEqual(len(backends_by_class), 1)
         self.assertEqual(len(backends_by_id), 1)
         self.assertEqual(backends_by_class, backends_by_id)
+        
         
     def testSuperAccepterList(self):
         backends_by_class = super_accepter([EpicFailBackend, DummyBackend], ALERT_BACKENDS)
@@ -274,6 +284,20 @@ class FormTests(TestCase):
         self.assertEqual(backends_by_class, backends_by_mixed)
         self.assertEqual(backends_by_mixed, backends_by_id)
         
+        
     def testSuperAccepterDuplicates(self):
         backends = super_accepter([EpicFailBackend, DummyBackend, "EpicFail"], ALERT_BACKENDS)
         self.assertEqual(len(backends), 2)
+        
+    
+    def testUnsubscribe(self):
+        details = {
+            "alert_type": WelcomeAlert.id,
+            "backend": EpicFailBackend.id,
+            "user": self.user,
+        }
+        AlertPreference.objects.create(preference=True, **details)
+        self.assertEqual(AlertPreference.objects.get(**details).preference, True)
+        
+        unsubscribe_user(self.user, alerts=WelcomeAlert, backends=EpicFailBackend)
+        self.assertEqual(AlertPreference.objects.get(**details).preference, False)
