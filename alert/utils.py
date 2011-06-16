@@ -75,7 +75,7 @@ class BaseAlert(object):
         from alert.models import Alert
         
         users = self.get_applicable_users(**kwargs)
-        users = [users] if isinstance(users, models.Model) else users
+        users = [users] if isinstance(users, models.Model) else list(users)
         
         if len(users) and not isinstance(users[0], User):
             raise InvalidApplicableUsers("%s.get_applicable_users() returned an invalid value. Acceptable values are a django.contrib.auth.models.User instance OR an iterable containing 0 or more User instances" % (self.id))
