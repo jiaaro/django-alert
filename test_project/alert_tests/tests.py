@@ -112,7 +112,7 @@ class AlertTests(TestCase):
     
     def test_alert_registration_only_happens_once(self):
         self.assertTrue(isinstance(ALERT_TYPES["WelcomeAlert"], WelcomeAlert))
-        self.assertEquals(len(ALERT_TYPES), 2)
+        self.assertEquals(len(ALERT_TYPES), 3)
         
         def define_again():
             class WelcomeAlert(BaseAlert):

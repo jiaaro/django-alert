@@ -75,6 +75,27 @@ class AlertPreference(models.Model):
     def backend_obj(self):
         return ALERT_BACKENDS[self.backend]
     
+    
+    
+class AdminAlert(models.Model):
+    title = models.CharField(max_length=250)
+    body = models.TextField()
+    
+    recipients = models.ManyToManyField(User, help_text="who should receive this message?")
+    
+    send_at = models.DateTimeField(default=datetime.now, help_text="schedule the sending of this message in the future")
+    draft = models.BooleanField(default=False, help_text="save as draft")
+    sent = models.BooleanField(default=False)
+    
+    @property
+    def status(self):
+        if self.sent:
+            return "scheduled" if self.send_at < datetime.now() else "sent"
+        else:
+            return "unsent (saved as draft)"
+    
+    
    
 import alert.listeners #@UnusedImport
 import alert.backends #@UnusedImport
+import alert.alerts #@UnusedImport

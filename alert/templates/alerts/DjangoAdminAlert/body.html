@@ -1,0 +1,22 @@
+{% extends "alerts/base_email_body.html" %}
+
+{% block extra_css %}
+  #backgroundTable {
+    background: #f0f0f0;
+  }
+  #main-content {
+    background: #ffffff;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #cccccc;
+    width: 520px; 
+    margin: 40px;
+    padding: 30px;
+  }
+{% endblock %}
+
+{% block content %}
+  <table id="main-content"><tr><td>
+    {{ instance.body }}
+  </td></tr></table>
+{% endblock %}
