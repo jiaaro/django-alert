@@ -1,12 +1,12 @@
 from .utils import BaseAlert
 from .models import AdminAlert
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 
 class DjangoAdminAlert(BaseAlert):
     title = 'Admin Alert (created in Django Admin Interface)'
     description = "Send alerts directly to the site's users from the django admin"
     
-    signal = pre_save
+    signal = post_save
     sender = AdminAlert
     
     template_filetype = 'html'
@@ -20,7 +20,7 @@ class DjangoAdminAlert(BaseAlert):
             instance.draft = False
             return False
         else:
-            instance.status = True
+            instance.sent = True
     
     def get_applicable_users(self, instance, **kwargs):
         return instance.users.all()
