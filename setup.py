@@ -1,24 +1,35 @@
-__doc__ = """
-Send alerts, notifications, and messages based on events in your django application.
-
-See the README file for details, usage info, and a list of gotchas.
-"""
-
 from setuptools import setup
 
 setup(
     name='django-alert',
-    version='0.6.2',
+    version='0.6.3',
+    
     author='James Robert',
     author_email='jiaaro@gmail.com',
+    
     description=('Send alerts, notifications, and messages based '
                 'on events in your django application'),
+    long_description=open('README.markdown').read(),
+    
     license='MIT',
     keywords='django alerts notifications social',
+    
     url='https://djangoalert.com',
-    packages=['alert', 'alert.management', 'alert.management.commands', 'alert.migrations',],
-    package_data = {'alert': ['templates/alerts/*']},
-    long_description=__doc__,
+    
+    install_requires=[
+        "django",
+    ],
+    
+    packages=[
+        'alert', 
+        'alert.management', 
+        'alert.management.commands', 
+        'alert.migrations',
+    ],
+    
+    include_package_data=True,
+    
+    
     classifiers=[
     	'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
