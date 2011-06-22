@@ -1,6 +1,8 @@
+from datetime import datetime
 from django.contrib import admin
-from models import Alert, AlertPreference, AdminAlert
-
+from django.contrib.auth.models import User
+from alert.models import Alert, AlertPreference, AdminAlert
+from alert.signals import admin_alert_saved
 
 
 class AlertAdmin(admin.ModelAdmin):
@@ -36,15 +38,62 @@ class AlertPrefAdmin(admin.ModelAdmin):
 
 
 class AdminAlertAdmin(admin.ModelAdmin):
-    list_display = ("title", "status", "send_at",)
-    exclude = ('sent',)
+    list_display = ("title", "status", "send_time",)
     search_fields = ("title",)
     
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'body',)
+        }),
+#        Don't display this in the interface right now - it's not very useful and
+#        it's pretty ugly :(
+#            
+#        ("Recipients", {
+#            'classes': ('collapse',),
+#            'fields': ('recipients',)
+#        }),
+        ("Advanced", {
+            'classes': ('collapse',),
+            'fields': ('send_at', 'draft')
+        }),
+    )
     
-    def get_readonly_fields(self, request, obj):
+    
+    def get_readonly_fields(self, request, obj=None):
         # don't allow editing if it's already sent
         if obj and obj.sent:
             return self.fields
+        else: return ()
+        
+        
+    def save_model(self, request, obj, form, change):
+        is_draft = obj.draft
+        if is_draft:
+            # set the draft property false for next time
+            obj.draft = False
+        
+        # if it's already been sent then that's it
+        obj.sent = obj.sent or not is_draft
+        
+        obj.save()
+        
+        # for now, sent to all site users
+        recipients = User.objects.all()
+        
+        if not is_draft:
+            admin_alert_saved.send(sender=AdminAlert, instance=obj, recipients=recipients)
+        
+        
+    def status(self, obj):
+        if obj.sent:
+            return "scheduled" if obj.send_at < datetime.now() else "sent"
+        else:
+            return "unsent (saved as draft)"
+        
+
+    def send_time(self, obj):
+        return "-" if not obj.sent else obj.send_at
+        
     
     
 

@@ -84,15 +84,8 @@ class AdminAlert(models.Model):
     recipients = models.ManyToManyField(User, help_text="who should receive this message?")
     
     send_at = models.DateTimeField(default=datetime.now, help_text="schedule the sending of this message in the future")
-    draft = models.BooleanField(default=False, help_text="save as draft")
+    draft = models.BooleanField(default=False, verbose_name="Save as draft (don't send/queue now)")
     sent = models.BooleanField(default=False)
-    
-    @property
-    def status(self):
-        if self.sent:
-            return "scheduled" if self.send_at < datetime.now() else "sent"
-        else:
-            return "unsent (saved as draft)"
     
     
    

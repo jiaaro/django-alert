@@ -16,6 +16,8 @@ from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse, CouldNotSendError
 from alert.models import Alert, AlertPreference, AdminAlert
 from alert.forms import AlertPreferenceForm, UnsubscribeForm
+from alert.signals import admin_alert_saved
+from alert.admin import AdminAlertAdmin
 
 
 class SubclassTestingAlert(BaseAlert):
@@ -308,18 +310,20 @@ class AdminAlertTests(TestCase):
     def setUp(self):
         self.admin_alert = AdminAlert(
                                       title="Hello users!",
-                                      body="woooord!",
-                                      recipients=User.objects.all()
+                                      body="woooord!"
                                       )
+        
+    def send_it(self):
+        AdminAlertAdmin.save_model(AdminAlertAdmin(AdminAlert, None), None, self.admin_alert, None, None)
     
     
     def testDraftMode(self):
         self.admin_alert.draft = True
-        self.admin_alert.save()
+        self.send_it()
         
         self.assertEqual(Alert.objects.count(), 0)
         
-        self.admin_alert.save()
+        self.send_it()
         self.assertEqual(Alert.objects.count(), User.objects.count())
     
     
@@ -327,7 +331,7 @@ class AdminAlertTests(TestCase):
         send_at = datetime.now() + timedelta(days=1)
         
         self.admin_alert.send_at = send_at
-        self.admin_alert.save()
+        self.send_it()
 
         for alert in Alert.objects.all():
             self.assertEqual(alert.when, send_at)
@@ -335,12 +339,12 @@ class AdminAlertTests(TestCase):
     
     def testOnlySendOnce(self):
         self.assertFalse(self.admin_alert.sent) 
-        self.admin_alert.save()
+        self.send_it()
         self.assertTrue(self.admin_alert.sent)
         
         alert_count = Alert.objects.count()
         
-        self.admin_alert.save()
+        self.send_it()
         
         self.assertEqual(alert_count, Alert.objects.count())
     
