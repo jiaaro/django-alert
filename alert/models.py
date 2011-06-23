@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.db import models
 
@@ -81,7 +81,7 @@ class AdminAlert(models.Model):
     title = models.CharField(max_length=250)
     body = models.TextField()
     
-    recipients = models.ManyToManyField(User, help_text="who should receive this message?")
+    recipients = models.ForeignKey(Group, null=True, help_text="who should receive this message?")
     
     send_at = models.DateTimeField(default=datetime.now, help_text="schedule the sending of this message in the future")
     draft = models.BooleanField(default=False, verbose_name="Save as draft (don't send/queue now)")

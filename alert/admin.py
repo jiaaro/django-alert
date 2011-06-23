@@ -76,7 +76,7 @@ class AdminAlertAdmin(admin.ModelAdmin):
         obj.save()
         
         # for now, sent to all site users
-        recipients = User.objects.all()
+        recipients = obj.recipients.user_set.all()
         
         if not is_draft:
             admin_alert_saved.send(sender=AdminAlert, instance=obj, recipients=recipients)

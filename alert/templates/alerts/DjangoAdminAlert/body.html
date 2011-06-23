@@ -17,6 +17,6 @@
 
 {% block content %}
   <table id="main-content"><tr><td>
-    {{ instance.body }}
+    {{ instance.body|safe }}
   </td></tr></table>
 {% endblock %}

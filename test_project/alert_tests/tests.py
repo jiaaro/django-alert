@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from threading import Thread
 
 from django.test import TestCase, TransactionTestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core import management, mail
 from django.core.mail import send_mail
 from django.conf import settings
@@ -308,9 +308,11 @@ class FormTests(TestCase):
 class AdminAlertTests(TestCase):
     
     def setUp(self):
+        group = Group.objects.create(name='test_group')
         self.admin_alert = AdminAlert(
                                       title="Hello users!",
-                                      body="woooord!"
+                                      body="woooord!",
+                                      recipients=group
                                       )
         
     def send_it(self):
