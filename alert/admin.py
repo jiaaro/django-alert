@@ -45,13 +45,10 @@ class AdminAlertAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('title', 'body',)
         }),
-#        Don't display this in the interface right now - it's not very useful and
-#        it's pretty ugly :(
-#            
-#        ("Recipients", {
+        ("Recipients", {
 #            'classes': ('collapse',),
-#            'fields': ('recipients',)
-#        }),
+            'fields': ('recipients',) 
+        }),
         ("Advanced", {
             'classes': ('collapse',),
             'fields': ('send_at', 'draft')
@@ -62,8 +59,9 @@ class AdminAlertAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         # don't allow editing if it's already sent
         if obj and obj.sent:
-            return self.fields
-        else: return ()
+            return ("title", 'body', 'recipients', 'send_at', 'draft')
+        else: 
+            return ()
         
         
     def save_model(self, request, obj, form, change):
