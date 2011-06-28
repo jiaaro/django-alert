@@ -132,7 +132,7 @@ class MarketingDrip3(MarketingDrip1):
     "alerts/MarketingDrip3/EmailBackend/body.txt"
     
     html version:
-    "alerts/MarketingDrip4/EmailBackend/body.html"
+    "alerts/MarketingDrip3/EmailBackend/body.html"
     """
 
     def get_send_time(self, **kwargs):
