@@ -66,5 +66,5 @@ class AlertPrefsManager(Manager):
                 if (user.id, backend.id) not in prefs:
                     prefs[user.id, backend.id] = notice_type.get_default(backend.id)
         
-        return tuple((user_cache[user_id], ALERT_BACKENDS[backend_id]) for ((user_id, backend_id), pref) in prefs.items() if pref)
+        return ((user_cache[user_id], ALERT_BACKENDS[backend_id]) for ((user_id, backend_id), pref) in prefs.items() if pref)
     
