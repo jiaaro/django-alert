@@ -3,3 +3,5 @@
 *.pyc
 /django_alert.egg-info/
 /dist/
+.settings/
+.pydevproject
