@@ -65,17 +65,16 @@ class MarketingDrip1(BaseAlert):
     templates...
     
     subject line: 
-    "alerts/MarketingDrip1/EmailBackend/title.txt"
+    "alerts/MarketingDrip1/EmailBackend/title.html"
     
-    body text:
-    "alerts/MarketingDrip1/EmailBackend/body.txt"
-    
-    html version:
+    email body:
     "alerts/MarketingDrip1/EmailBackend/body.html"
     """
     title = "Trickle"
     description = "Send scheduled marketing emails to users once they give their email"
     
+    template_filetype = "html"
+
     # don't send on any backends except email
     default = defaultdict(lambda: False)
     default['EmailBackend'] = True
@@ -103,12 +102,9 @@ class MarketingDrip2(MarketingDrip1):
     templates...
     
     subject line: 
-    "alerts/MarketingDrip2/EmailBackend/title.txt"
+    "alerts/MarketingDrip2/EmailBackend/title.html"
     
-    body text:
-    "alerts/MarketingDrip2/EmailBackend/body.txt"
-    
-    html version:
+    email body:
     "alerts/MarketingDrip2/EmailBackend/body.html"
     """
 
@@ -126,13 +122,10 @@ class MarketingDrip3(MarketingDrip1):
     templates...
     
     subject line: 
-    "alerts/MarketingDrip3/EmailBackend/title.txt"
+    "alerts/MarketingDrip3/EmailBackend/title.html"
     
-    body text:
-    "alerts/MarketingDrip3/EmailBackend/body.txt"
-    
-    html version:
-    "alerts/MarketingDrip4/EmailBackend/body.html"
+    email body:
+    "alerts/MarketingDrip3/EmailBackend/body.html"
     """
 
     def get_send_time(self, **kwargs):
