@@ -19,9 +19,10 @@ alert is subclassed from "alert.utils.BaseAlert"
 
 Here is an example alert that is sent to users when they first sign up:
 
-    from alert.utils import BaseAlert
     from django.contrib.auth.models import User
-
+    from django.db.models.signals import post_save
+    from alert.utils import BaseAlert
+    
     class WelcomeAlert(BaseAlert):
 		    title = 'Welcome new users'
 		    description = 'When a new user signs up, send them a welcome email'
