@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jiaaro/django-alert.png?branch=master)](https://travis-ci.org/jiaaro/django-alert)
+
 ## Installation ##
 
  1. Install lib with pip:
