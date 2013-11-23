@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='django-alert',
-    version='0.6.6',
+    version='0.6.7',
     
     author='James Robert',
     author_email='jiaaro@gmail.com',
