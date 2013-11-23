@@ -7,6 +7,7 @@ from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
 from django.contrib.auth.models import User
 from django.db import models
+from itertools import islice
 
 ALERT_TYPES = {}
 ALERT_BACKENDS = {}
@@ -14,7 +15,12 @@ ALERT_BACKENDS = {}
 ALERT_TYPE_CHOICES = [] 
 ALERT_BACKEND_CHOICES = []
 
-
+def grouper(n, iterable):
+    iterable = iter(iterable)
+    while True:
+        chunk = tuple(islice(iterable, n))
+        if not chunk: return
+        yield chunk
 
 class AlertMeta(type):
 
@@ -79,7 +85,12 @@ class BaseAlert(object):
         if isinstance(users, models.Model):
             users = [users]
         
-        if len(users) and not isinstance(users[0], User):
+        try:
+            user_count = users.count()
+        except:
+            user_count = len(users)
+            
+        if user_count and not isinstance(users[0], User):
             raise InvalidApplicableUsers("%s.get_applicable_users() returned an invalid value. Acceptable values are a django.contrib.auth.models.User instance OR an iterable containing 0 or more User instances" % (self.id))
         
         site = Site.objects.get_current()
@@ -95,12 +106,16 @@ class BaseAlert(object):
                           title=self.get_title(**template_kwargs),
                           body=self.get_body(**template_kwargs)
                           )
-        alerts = [mk_alert(user, backend) for (user, backend) in AlertPreference.objects.get_recipients_for_notice(self.id, users)]
+        alerts = (mk_alert(user, backend) for (user, backend) in AlertPreference.objects.get_recipients_for_notice(self.id, users))
         
-        if django.VERSION >= (1, 5):
-            Alert.objects.bulk_create(alerts, batch_size=1000)
-        elif django.VERSION >= (1, 4):
-            Alert.objects.bulk_create(alerts)
+        # bulk create is much faster so use it when available
+        if django.VERSION >= (1, 4):
+            created = 0
+            for alerts_group in grouper(100, alerts):
+                # break bulk create into groups of 100 to avoid the dreaded
+                # OperationalError: (2006, 'MySQL server has gone away')
+                Alert.objects.bulk_create(alerts_group)
+                created += 100
         else:
             for alert in alerts: alert.save()
     
