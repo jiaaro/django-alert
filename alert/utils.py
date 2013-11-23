@@ -1,6 +1,7 @@
 from datetime import datetime
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse,\
     InvalidApplicableUsers
+import django
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
@@ -83,17 +84,25 @@ class BaseAlert(object):
         
         site = Site.objects.get_current()
         
-        for user, backend in AlertPreference.objects.get_recipients_for_notice(self.id, users):
+        def mk_alert(user, backend):
             context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, ALERT=self, **kwargs)
-            template_kwargs = {'backend': backend, 'context': context } 
-            Alert.objects.create(
-                                 user=user, 
-                                 backend=backend.id,
-                                 alert_type=self.id,
-                                 when=self.get_send_time(**kwargs),
-                                 title=self.get_title(**template_kwargs),
-                                 body=self.get_body(**template_kwargs)
-                                 )
+            template_kwargs = {'backend': backend, 'context': context }
+            return Alert(
+                          user=user, 
+                          backend=backend.id,
+                          alert_type=self.id,
+                          when=self.get_send_time(**kwargs),
+                          title=self.get_title(**template_kwargs),
+                          body=self.get_body(**template_kwargs)
+                          )
+        alerts = [mk_alert(user, backend) for (user, backend) in AlertPreference.objects.get_recipients_for_notice(self.id, users)]
+        
+        if django.VERSION >= (1, 5):
+            Alert.objects.bulk_create(alerts, batch_size=1000)
+        elif django.VERSION >= (1, 4):
+            Alert.objects.bulk_create(alerts)
+        else:
+            for alert in alerts: alert.save()
     
     
     def before(self, **kwargs):
