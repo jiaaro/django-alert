@@ -10,6 +10,7 @@ class AlertAdmin(admin.ModelAdmin):
     list_filter = ('alert_type', 'backend', 'is_sent', 'failed')
     search_fields = ('=user__username', '=user__email')
     actions = ['resend']
+    raw_id_fields = ("user",)
     
     
     def resend(self, request, qs):
@@ -24,6 +25,7 @@ class AlertPrefAdmin(admin.ModelAdmin):
     list_filter = ('alert_type', 'backend', 'preference')
     search_fields = ('=user__username', '=user__email')
     actions = ['subscribe', 'unsubscribe']
+    raw_id_fields = ("user",)
     
     
     def unsubscribe(self, request, qs): 
