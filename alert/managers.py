@@ -2,7 +2,6 @@ from datetime import datetime
 from collections import defaultdict
 from django.db.models import Manager
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
-from django.contrib.auth.models import User
 
 
 class AlertManager(Manager): pass
