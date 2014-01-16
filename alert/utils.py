@@ -2,6 +2,7 @@ from datetime import datetime
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse,\
     InvalidApplicableUsers
 import django
+from django.conf import settings
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
@@ -109,7 +110,7 @@ class BaseAlert(object):
         alerts = (mk_alert(user, backend) for (user, backend) in AlertPreference.objects.get_recipients_for_notice(self.id, users))
         
         # bulk create is much faster so use it when available
-        if django.VERSION >= (1, 4):
+        if django.VERSION >= (1, 4) and getattr(settings, 'ALERT_USE_BULK_CREATE', True):
             created = 0
             for alerts_group in grouper(100, alerts):
                 # break bulk create into groups of 100 to avoid the dreaded
