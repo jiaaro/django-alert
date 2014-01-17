@@ -1,6 +1,5 @@
 from datetime import datetime
 from django.contrib import admin
-from django.contrib.auth.models import User
 from alert.models import Alert, AlertPreference, AdminAlert
 from alert.signals import admin_alert_saved
 

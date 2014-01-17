@@ -6,9 +6,10 @@ from django.conf import settings
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
-from django.contrib.auth.models import User
 from django.db import models
 from itertools import islice
+
+from alert.compat import get_user_model
 
 ALERT_TYPES = {}
 ALERT_BACKENDS = {}
@@ -91,6 +92,7 @@ class BaseAlert(object):
         except:
             user_count = len(users)
             
+        User = get_user_model()
         if user_count and not isinstance(users[0], User):
             raise InvalidApplicableUsers("%s.get_applicable_users() returned an invalid value. Acceptable values are a django.contrib.auth.models.User instance OR an iterable containing 0 or more User instances" % (self.id))
         
