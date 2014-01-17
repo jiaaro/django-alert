@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.auth.models import User as OriginalUser
 from django.contrib.sites.models import Site
 from django.db import models
 
@@ -12,7 +13,7 @@ from alert.signals import alert_sent
 
 
 class Alert(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', OriginalUser))
     backend = models.CharField(max_length=20, default='EmailBackend', choices=ALERT_BACKEND_CHOICES)
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     
@@ -57,7 +58,7 @@ class Alert(models.Model):
 
 
 class AlertPreference(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', OriginalUser))
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     backend = models.CharField(max_length=25, choices=ALERT_BACKEND_CHOICES)
     

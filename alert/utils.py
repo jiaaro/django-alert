@@ -5,9 +5,10 @@ import django
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
-from django.contrib.auth import get_user_model
 from django.db import models
 from itertools import islice
+
+from alert.compat import get_user_model
 
 ALERT_TYPES = {}
 ALERT_BACKENDS = {}
