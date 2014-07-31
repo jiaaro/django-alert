@@ -5,12 +5,20 @@ from alert.signals import admin_alert_saved
 
 
 class AlertAdmin(admin.ModelAdmin):
-    list_display = ('user', 'title', 'backend', 'alert_type', 'failed', 'is_sent', 'created',)
+    list_display = ('username', 'title', 'backend', 'alert_type', 'failed', 'is_sent', 'created',)
     list_filter = ('alert_type', 'backend', 'is_sent', 'failed')
     search_fields = ('=user__username', '=user__email')
     actions = ['resend']
     raw_id_fields = ("user",)
     
+    def queryset(self, request):
+        qs = super(AlertAdmin, self).queryset(request)
+        if hasattr(qs, "prefetch_related"):
+            qs = qs.prefetch_related("user")
+        return qs
+    
+    def username(self, obj):
+        return obj.user.username
     
     def resend(self, request, qs):
         for alert in qs:
