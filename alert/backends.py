@@ -46,15 +46,21 @@ class EmailBackend(BaseAlertBackend):
         to = [recipient]
         from_email = settings.DEFAULT_FROM_EMAIL 
         
-        if alert.alert_type_obj.template_filetype == 'html':
-            html_content = alert.body
-            text_content = to_text(html_content)
-            
-            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            
-        else:
-            send_mail(subject, alert.body, from_email, to)
+        try:
+            if alert.alert_type_obj.template_filetype == 'html':
+                html_content = alert.body
+                text_content = to_text(html_content)
+                
+                msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+                
+            else:
+                send_mail(subject, alert.body, from_email, to)
+        except Exception, e:
+            print "sending to", recipient, "failed"
+            print e
+            print "\n"
+            raise CouldNotSendError
         
         
