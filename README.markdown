@@ -11,6 +11,8 @@
     Put the "alert" directory somewhere in your python path
 
  2. Add "alert" to your installed apps (in the settings.py file)
+ 3. Also add "django.contrib.sites" in installed apps in case it's not there.
+ 4. Run ./manage.py migrate
 
 
 ## Making Alerts ##
