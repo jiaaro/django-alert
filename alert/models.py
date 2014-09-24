@@ -62,7 +62,7 @@ class AlertPreference(models.Model):
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     backend = models.CharField(max_length=25, choices=ALERT_BACKEND_CHOICES)
     
-    preference = models.BooleanField()
+    preference = models.BooleanField(default=False)
     
     objects = AlertPrefsManager()
     
