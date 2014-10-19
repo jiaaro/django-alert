@@ -11,12 +11,19 @@ from alert.exceptions import CouldNotSendError
 from alert.signals import alert_sent
 
 
+def get_alert_default_title():
+    return "%s alert" % Site.objects.get_current().name
+
+def get_alert_default_site():
+    return Site.objects.get_current()
+
+
 class Alert(models.Model):
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', OriginalUser))
     backend = models.CharField(max_length=20, default='EmailBackend', choices=ALERT_BACKEND_CHOICES)
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
-    
-    title = models.CharField(max_length=250, default=lambda: "%s alert" % Site.objects.get_current().name)
+
+    title = models.CharField(max_length=250, default=get_alert_default_title)
     body = models.TextField()
 
     when = models.DateTimeField(default=timezone.now)
@@ -25,9 +32,9 @@ class Alert(models.Model):
     
     is_sent = models.BooleanField(default=False)
     failed = models.BooleanField(default=False)
-    
-    site = models.ForeignKey(Site, default=lambda: Site.objects.get_current())
-    
+
+    site = models.ForeignKey(Site, default=get_alert_default_site)
+
     objects = AlertManager()
     pending = PendingAlertManager()
     
