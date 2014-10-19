@@ -1,6 +1,6 @@
-from datetime import datetime
 from collections import defaultdict
 from django.db.models import Manager
+from django.utils import timezone
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
 
 
@@ -17,11 +17,11 @@ class PendingAlertManager(AlertManager):
     
     def get_query_set(self, *args, **kwargs):
         qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
-        return qs.filter(when__lte=datetime.now(), is_sent=False)
-    
-    
-    
-    
+        return qs.filter(when__lte=timezone.now(), is_sent=False)
+
+
+
+
 class AlertPrefsManager(Manager):
     
     def get_user_prefs(self, user):

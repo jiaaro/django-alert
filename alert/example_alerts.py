@@ -1,5 +1,6 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 
@@ -89,8 +90,8 @@ class MarketingDrip1(BaseAlert):
         return instance
 
     def get_send_time(self, **kwargs):
-        return datetime.now + timedelta(days=3)
-    
+        return timezone.now + timedelta(days=3)
+
 
 
 class MarketingDrip2(MarketingDrip1):
@@ -109,8 +110,8 @@ class MarketingDrip2(MarketingDrip1):
     """
 
     def get_send_time(self, **kwargs):
-        return datetime.now + timedelta(days=7)
-    
+        return timezone.now + timedelta(days=7)
+
 
 class MarketingDrip3(MarketingDrip1):
     """
@@ -129,7 +130,9 @@ class MarketingDrip3(MarketingDrip1):
     """
 
     def get_send_time(self, **kwargs):
-        return datetime.now + timedelta(days=30)
+        return timezone.now + timedelta(days=30)
+
+
 
     
     

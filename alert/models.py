@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User as OriginalUser
 from django.contrib.sites.models import Site
@@ -19,9 +18,9 @@ class Alert(models.Model):
     
     title = models.CharField(max_length=250, default=lambda: "%s alert" % Site.objects.get_current().name)
     body = models.TextField()
-    
-    when = models.DateTimeField(default=datetime.now)
-    created = models.DateTimeField(default=datetime.now)
+
+    when = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(default=timezone.now)
     last_attempt = models.DateTimeField(blank=True, null=True)
     
     is_sent = models.BooleanField(default=False)
@@ -44,7 +43,7 @@ class Alert(models.Model):
         except CouldNotSendError:
             self.failed = True
         
-        self.last_attempt = datetime.now()
+        self.last_attempt = timezone.now()
         self.save()
     
     @property
@@ -84,8 +83,8 @@ class AdminAlert(models.Model):
     body = models.TextField()
     
     recipients = models.ForeignKey(Group, null=True, help_text="who should receive this message?")
-    
-    send_at = models.DateTimeField(default=datetime.now, help_text="schedule the sending of this message in the future")
+
+    send_at = models.DateTimeField(default=timezone.now, help_text="schedule the sending of this message in the future")
     draft = models.BooleanField(default=False, verbose_name="Save as draft (don't send/queue now)")
     sent = models.BooleanField(default=False)
     

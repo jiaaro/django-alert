@@ -1,11 +1,12 @@
 import time
 from uuid import uuid1
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from threading import Thread
 
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User, Group
+from django.utils import timezone
 from django.core import management, mail
 from django.core.mail import send_mail
 from django.conf import settings
@@ -164,9 +165,9 @@ class AlertBackendTests(TestCase):
     def test_backend_fails_to_send(self):        
         alert_that_should_fail = Alert.objects.filter(backend='EpicFail')[0]
         
-        before_send = datetime.now()
+        before_send = timezone.now()
         alert_that_should_fail.send()
-        after_send = datetime.now()
+        after_send = timezone.now()
         
         self.assertTrue(alert_that_should_fail.failed)
         self.assertFalse(alert_that_should_fail.is_sent)
@@ -176,9 +177,9 @@ class AlertBackendTests(TestCase):
         self.assertTrue(alert_that_should_fail.last_attempt < after_send)
         
         # and now retry
-        before_send = datetime.now()
+        before_send = timezone.now()
         alert_that_should_fail.send()
-        after_send = datetime.now()
+        after_send = timezone.now()
         
         self.assertFalse(alert_that_should_fail.failed)
         self.assertTrue(alert_that_should_fail.is_sent)
@@ -329,8 +330,8 @@ class AdminAlertTests(TestCase):
     
     
     def testScheduling(self):
-        send_at = datetime.now() + timedelta(days=1)
-        
+        send_at = timezone.now() + timedelta(days=1)
+
         self.admin_alert.send_at = send_at
         self.send_it()
 

@@ -1,5 +1,5 @@
-from datetime import datetime
 from django.contrib import admin
+from django.utils import timezone
 from alert.models import Alert, AlertPreference, AdminAlert
 from alert.signals import admin_alert_saved
 
@@ -93,7 +93,7 @@ class AdminAlertAdmin(admin.ModelAdmin):
         
     def status(self, obj):
         if obj.sent:
-            return "scheduled" if obj.send_at < datetime.now() else "sent"
+            return "scheduled" if obj.send_at < timezone.now() else "sent"
         else:
             return "unsent (saved as draft)"
         
