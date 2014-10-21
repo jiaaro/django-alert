@@ -15,7 +15,7 @@ def get_alert_default_title():
     return "%s alert" % Site.objects.get_current().name
 
 def get_alert_default_site():
-    return Site.objects.get_current()
+    return Site.objects.get_current().id
 
 
 class Alert(models.Model):
