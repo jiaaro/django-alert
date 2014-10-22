@@ -1,8 +1,8 @@
-from datetime import datetime
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse,\
     InvalidApplicableUsers
 import django
 from django.conf import settings
+from django.utils import timezone
 from django.template.loader import render_to_string, find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
@@ -128,9 +128,9 @@ class BaseAlert(object):
     
     
     def get_send_time(self, **kwargs):
-        return datetime.now()
-    
-    
+        return timezone.now()
+
+
     def get_applicable_users(self, instance, **kwargs):
         return [instance.user]
     
