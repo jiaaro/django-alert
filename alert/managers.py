@@ -1,5 +1,5 @@
 from collections import defaultdict
-from django.db.models import Manager
+from django.db.models import Manager, QuerySet
 from django.utils import timezone
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
 
@@ -53,7 +53,11 @@ class AlertPrefsManager(Manager):
         if not users: return ()
         
         # this optimization really shouldn't be necessary, but it makes a huge difference on mysql
-        user_ids = list(users.values_list("id", flat=True))
+        if isinstance(users, QuerySet):
+          user_ids = list(users.values_list("id", flat=True))
+        else:
+          user_ids = [u.id for u in users]
+        
         alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=user_ids)
         
         prefs = {}
