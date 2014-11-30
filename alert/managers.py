@@ -52,7 +52,9 @@ class AlertPrefsManager(Manager):
         
         if not users: return ()
         
-        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=users)
+        # this optimization really shouldn't be necessary, but it makes a huge difference on mysql
+        user_ids = list(users.values_list("id", flat=True))
+        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=user_ids)
         
         prefs = {}
         for pref in alert_prefs:
