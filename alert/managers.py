@@ -1,5 +1,6 @@
 from collections import defaultdict
-from django.db.models import Manager, QuerySet
+from django.db.models import Manager
+from django.db.models.query import QuerySet
 from django.utils import timezone
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
 
