@@ -39,7 +39,7 @@ class Alert(models.Model):
     pending = PendingAlertManager()
     
     
-    def send(self):
+    def send(self, commit=True):
         backend = self.backend_obj
         try:
             backend.send(self)
@@ -51,7 +51,8 @@ class Alert(models.Model):
             self.failed = True
         
         self.last_attempt = timezone.now()
-        self.save()
+        if commit:
+          self.save()
     
     @property
     def alert_type_obj(self):
