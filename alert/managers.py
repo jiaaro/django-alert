@@ -5,7 +5,8 @@ from django.utils import timezone
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
 
 
-class AlertManager(Manager): pass
+class AlertManager(Manager):
+    pass
 
 
 class PendingAlertManager(AlertManager):
@@ -15,15 +16,19 @@ class PendingAlertManager(AlertManager):
     This is not the same as unsent alerts; alerts scheduled to be sent in the
     future will not be affected by this manager.
     """
-    
     def get_query_set(self, *args, **kwargs):
         qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
         return qs.filter(when__lte=timezone.now(), is_sent=False)
-
-
+    
+    def get_queryset(self, *args, **kwargs):
+        qs = super(PendingAlertManager, self).get_queryset(*args, **kwargs)
+        return qs.filter(when__lte=timezone.now(), is_sent=False)
 
 
 class AlertPrefsManager(Manager):
+    if hasattr(Manager, "get_queryset"):
+        def get_query_set(self, *args, **kwargs):
+            return self.get_queryset(*args, **kwargs)
     
     def get_user_prefs(self, user):
         if not user.is_authenticated():
