@@ -26,9 +26,9 @@ class PendingAlertManager(AlertManager):
 
 
 class AlertPrefsManager(Manager):
-    if hasattr(Manager, "get_queryset"):
-        def get_query_set(self, *args, **kwargs):
-            return self.get_queryset(*args, **kwargs)
+    def get_queryset_compat(self, *args, **kwargs):
+        getqs = self.get_queryset if hasattr(Manager, "get_queryset") else self.get_query_set
+        return getqs(*args, **kwargs)
     
     def get_user_prefs(self, user):
         if not user.is_authenticated():
@@ -38,7 +38,7 @@ class AlertPrefsManager(Manager):
                         )
         
             
-        alert_prefs = self.get_query_set().filter(user=user)
+        alert_prefs = self.get_queryset_compat().filter(user=user)
         
         prefs = {}
         for pref in alert_prefs:
@@ -64,7 +64,7 @@ class AlertPrefsManager(Manager):
         else:
           user_ids = [u.id for u in users]
         
-        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=user_ids)
+        alert_prefs = self.get_queryset_compat().filter(alert_type=notice_type.id).filter(user__in=user_ids)
         
         prefs = {}
         for pref in alert_prefs:
