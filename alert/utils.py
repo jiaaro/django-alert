@@ -3,8 +3,7 @@ from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse,\
 import django
 from django.conf import settings
 from django.utils import timezone
-from django.template.loader import render_to_string
-from django.template.loader import get_template
+from django.template.loader import render_to_string, get_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
 from django.db import models
