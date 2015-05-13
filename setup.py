@@ -25,6 +25,7 @@ setup(
         'alert.management', 
         'alert.management.commands', 
         'alert.south_migrations',
+        'alert.migrations',
     ],
     
     include_package_data=True,
