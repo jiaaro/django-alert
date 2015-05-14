@@ -7,6 +7,15 @@ import django.utils.timezone
 import alert.models
 
 
+def sites_patch_django17(apps, schema_editor):
+    import django
+    ver = django.get_version()
+
+    if ver.startswith('1.7'):
+        from django.contrib.sites.management import create_default_site
+        from django.apps import apps
+        create_default_site(apps.get_app_configs()[0])
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -16,6 +25,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            sites_patch_django17,
+        ),
         migrations.CreateModel(
             name='AdminAlert',
             fields=[
