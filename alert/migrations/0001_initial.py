@@ -10,9 +10,9 @@ import alert.models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('auth', '0001_initial'),
         ('sites', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('auth', '0006_require_contenttypes_0002'),
     ]
 
     operations = [
@@ -27,6 +27,9 @@ class Migration(migrations.Migration):
                 ('sent', models.BooleanField(default=False)),
                 ('recipients', models.ForeignKey(to='auth.Group', help_text=b'who should receive this message?', null=True)),
             ],
+            options={
+            },
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Alert',
@@ -44,6 +47,9 @@ class Migration(migrations.Migration):
                 ('site', models.ForeignKey(default=alert.models.get_alert_default_site, to='sites.Site')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
+            options={
+            },
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='AlertPreference',
@@ -54,6 +60,9 @@ class Migration(migrations.Migration):
                 ('preference', models.BooleanField(default=False)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
+            options={
+            },
+            bases=(models.Model,),
         ),
         migrations.AlterUniqueTogether(
             name='alertpreference',
