@@ -24,6 +24,7 @@ setup(
         'alert', 
         'alert.management', 
         'alert.management.commands', 
+        'alert.south_migrations',
         'alert.migrations',
     ],
     

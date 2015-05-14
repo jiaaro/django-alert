@@ -1,114 +1,82 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
+import django
+from django.db import models, migrations
+from django.conf import settings
+import django.utils.timezone
 
-    def forwards(self, orm):
-        
-        # Adding model 'Alert'
-        db.create_table('alert_alert', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('backend', self.gf('django.db.models.fields.CharField')(default='EmailBackend', max_length=20)),
-            ('alert_type', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('title', self.gf('django.db.models.fields.CharField')(default=u'Premium Domain Finder alert', max_length=250)),
-            ('body', self.gf('django.db.models.fields.TextField')()),
-            ('when', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('last_attempt', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('is_sent', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('failed', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('alert', ['Alert'])
-
-        # Adding model 'AlertPreference'
-        db.create_table('alert_alertpreference', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('alert_type', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('backend', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('preference', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('alert', ['AlertPreference'])
-
-        # Adding unique constraint on 'AlertPreference', fields ['user', 'alert_type', 'backend']
-        db.create_unique('alert_alertpreference', ['user_id', 'alert_type', 'backend'])
+import alert.models
 
 
-    def backwards(self, orm):
-        
-        # Removing unique constraint on 'AlertPreference', fields ['user', 'alert_type', 'backend']
-        db.delete_unique('alert_alertpreference', ['user_id', 'alert_type', 'backend'])
+def sites_patch_django17(apps, schema_editor):
+    if django.VERSION[:2] == (1,7):
+        from django.contrib.sites.management import create_default_site
+        from django.apps import apps
+        create_default_site(apps.get_app_configs()[0])
 
-        # Deleting model 'Alert'
-        db.delete_table('alert_alert')
+class Migration(migrations.Migration):
 
-        # Deleting model 'AlertPreference'
-        db.delete_table('alert_alertpreference')
+    dependencies = [
+        ('auth', '0001_initial'),
+        ('sites', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-
-    models = {
-        'alert.alert': {
-            'Meta': {'object_name': 'Alert'},
-            'alert_type': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
-            'backend': ('django.db.models.fields.CharField', [], {'default': "'EmailBackend'", 'max_length': '20'}),
-            'body': ('django.db.models.fields.TextField', [], {}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'failed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_attempt': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'default': "u'Premium Domain Finder alert'", 'max_length': '250'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'when': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'})
-        },
-        'alert.alertpreference': {
-            'Meta': {'unique_together': "(('user', 'alert_type', 'backend'),)", 'object_name': 'AlertPreference'},
-            'alert_type': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
-            'backend': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'preference': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
-        },
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        }
-    }
-
-    complete_apps = ['alert']
+    operations = [
+        migrations.RunPython(
+            sites_patch_django17,
+        ),
+        migrations.CreateModel(
+            name='AdminAlert',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=250)),
+                ('body', models.TextField()),
+                ('send_at', models.DateTimeField(default=django.utils.timezone.now, help_text=b'schedule the sending of this message in the future')),
+                ('draft', models.BooleanField(default=False, verbose_name=b"Save as draft (don't send/queue now)")),
+                ('sent', models.BooleanField(default=False)),
+                ('recipients', models.ForeignKey(to='auth.Group', help_text=b'who should receive this message?', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Alert',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('backend', models.CharField(default=b'EmailBackend', max_length=20)),
+                ('alert_type', models.CharField(max_length=25)),
+                ('title', models.CharField(default=alert.models.get_alert_default_title, max_length=250)),
+                ('body', models.TextField()),
+                ('when', models.DateTimeField(default=django.utils.timezone.now)),
+                ('created', models.DateTimeField(default=django.utils.timezone.now)),
+                ('last_attempt', models.DateTimeField(null=True, blank=True)),
+                ('is_sent', models.BooleanField(default=False)),
+                ('failed', models.BooleanField(default=False)),
+                ('site', models.ForeignKey(default=alert.models.get_alert_default_site, to='sites.Site')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AlertPreference',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('alert_type', models.CharField(max_length=25)),
+                ('backend', models.CharField(max_length=25)),
+                ('preference', models.BooleanField(default=False)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='alertpreference',
+            unique_together=set([('user', 'alert_type', 'backend')]),
+        ),
+    ]
