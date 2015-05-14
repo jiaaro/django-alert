@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import models, migrations
 from django.conf import settings
 import django.utils.timezone
+
 import alert.models
 
 
 def sites_patch_django17(apps, schema_editor):
-    import django
-    ver = django.get_version()
-
-    if ver.startswith('1.7'):
+    if django.VERSION[:2] == (1,7):
         from django.contrib.sites.management import create_default_site
         from django.apps import apps
         create_default_site(apps.get_app_configs()[0])
