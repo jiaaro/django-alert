@@ -1,8 +1,10 @@
+import django
 import time
 from uuid import uuid1
 from datetime import timedelta
 
 from threading import Thread
+from django.template import Template
 
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User, Group
@@ -17,7 +19,6 @@ from alert.utils import BaseAlert, ALERT_TYPES, BaseAlertBackend, ALERT_BACKENDS
 from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse, CouldNotSendError
 from alert.models import Alert, AlertPreference, AdminAlert
 from alert.forms import AlertPreferenceForm, UnsubscribeForm
-from alert.signals import admin_alert_saved
 from alert.admin import AdminAlertAdmin
 
 
@@ -349,5 +350,38 @@ class AdminAlertTests(TestCase):
         self.send_it()
         
         self.assertEqual(alert_count, Alert.objects.count())
-    
-    
+
+
+# Email Templates aren't supported before django 1.8
+if django.VERSION[:2] >= (1, 8):
+    from django.template import engines
+    from alert.utils import render_email_to_string
+
+    def get_template_contents(tmpl):
+        fs_loader = engines['django'].engine.template_loaders[0]
+        source, origin = fs_loader.load_template_source(tmpl)
+        return source
+
+    class EmailTemplateTests(TestCase):
+        def check_template(self, name, cx):
+            template_file = "{0}.email".format(name)
+            expected_txt = get_template_contents("{0}.expected.txt".format(name))
+            expected_html = get_template_contents("{0}.expected.html".format(name))
+
+            rendered_default = render_email_to_string(template_file, cx)
+            rendered_txt = render_email_to_string(template_file, cx, alert_type="txt")
+            rendered_html = render_email_to_string(template_file, cx, alert_type="html")
+
+            # Default shard ext is "txt"
+            self.assertEqual(rendered_default, rendered_txt)
+
+            self.assertEqual(rendered_txt, expected_txt)
+            self.assertEqual(rendered_html, expected_html)
+
+
+
+
+        def test_basic_use(self):
+            self.check_template("basic", {
+                "username": "Alex"
+            })

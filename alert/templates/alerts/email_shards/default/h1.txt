@@ -1,0 +1,2 @@
+{{ content }}
+{% for char in content %}={% endfor %}

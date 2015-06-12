@@ -1,0 +1,12 @@
+{% load alert_email_tags %}
+
+{% p %}Hello {{ username }},{% endp %}
+
+{% p %}I'm writing you to say hello.{% endp %}
+
+{% h1 %}Main Points{% endh1 %}
+
+{% p %}There is only {% a href='http://google.com' %}one{% enda %} point, actually.{% endp %}
+
+{% p %}Best,
+James{% endp %}

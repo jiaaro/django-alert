@@ -24,6 +24,11 @@ def grouper(n, iterable):
         if not chunk: return
         yield chunk
 
+def render_email_to_string(tmpl, cx, alert_type="txt"):
+    cx['alert_shard_ext'] = alert_type
+    rendered = render_to_string(tmpl, cx)
+    return rendered.strip()
+
 class AlertMeta(type):
 
     def __new__(cls, name, bases, attrs):
